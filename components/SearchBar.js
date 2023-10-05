@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import { AntDesign } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
+import { theme } from "../theme";
 
-const SearchBar = ({ debouncedSearchText, setDebouncedSearchText }) => {
+const SearchBar = ({ setDebouncedSearchText }) => {
 
     const navigation = useNavigation();
     const [searchText, setSearchText] = useState("");
-
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -19,29 +19,25 @@ const SearchBar = ({ debouncedSearchText, setDebouncedSearchText }) => {
         };
     }, [searchText]);
 
-    useEffect(() => {
-        // console.log(debouncedSearchText);
-    }, [debouncedSearchText]);
-
     return (
         <View style={styles.container}>
             <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-                <AntDesign name="arrowleft" size={24} color="white" />
+                <AntDesign name="arrowleft" size={24} color={theme.white} />
             </TouchableOpacity>
             <TextInput
                 style={styles.input}
                 placeholder="Search Movies..."
                 value={searchText}
                 onChangeText={setSearchText}
-                placeholderTextColor={'white'}
+                placeholderTextColor={theme.white}
                 rightIcon={
                     <TouchableOpacity onPress={() => setSearchText('')}>
-                        <AntDesign name="close" size={24} color="white" />
+                        <AntDesign name="close" size={24} color={theme.white} />
                     </TouchableOpacity>
                 }
             />
-            <TouchableOpacity onPress={() => setSearchText('')}>
-                <AntDesign name="close" size={24} color="white" />
+            <TouchableOpacity style={styles.crossIcon} onPress={() => setSearchText('')}>
+                <AntDesign name="closecircleo" size={24} color={theme.white} />
             </TouchableOpacity>
         </View>
     );
@@ -51,7 +47,7 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: "row",
         alignItems: "center",
-        backgroundColor: "#1e1e1e",
+        backgroundColor: theme.searchBarBackground,
         padding: 10,
     },
     input: {
@@ -61,9 +57,13 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         padding: 10,
         fontSize: 20,
-        color: 'white',
+        color: theme.white,
         marginLeft: 16
     },
+    crossIcon: {
+        position: 'absolute',
+        right: 20
+    }
 });
 
 

@@ -7,7 +7,6 @@ const searchMovieURL = `search/movie?api_key=${API_KEY}`
 
 const apiCall = async (endpoint, params) => {
     const url = `${BASE_URL}${endpoint}`;
-    console.log(url);
     try {
         const response = await fetch(url.toString(), {
             method: 'GET',
@@ -31,7 +30,6 @@ export const getAllMovieGenres = () => {
 };
 
 export const getMovieForYear = (year, genres = []) => {
-    console.log('GET FOR YEAR >>>>>>>>>> ', year)
     const withGenresString = genres.join(',').toString();
     const url = `${getMovieByYearURL}&primary_release_year=${year}`;
     if (genres.length > 0) {
@@ -41,8 +39,6 @@ export const getMovieForYear = (year, genres = []) => {
 };
 
 export const searchMovies = (searchText, page = 1) => {
-    console.log('search', searchText)
     const url = `${searchMovieURL}&query=${searchText}&page=${page}`;
-    // console.log(url);
     return apiCall(url);
 }

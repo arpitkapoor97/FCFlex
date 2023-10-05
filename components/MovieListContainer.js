@@ -1,23 +1,30 @@
+import { memo } from "react";
 import { useEffect, useRef, useState } from "react"
 import { View, Text, SectionList, StyleSheet, ActivityIndicator } from "react-native"
 import MovieCard from "./MovieCard";
 import { getMovieForYear } from "../api/movieDB";
+import { theme } from "../theme";
 
 const INITIAL_YEAR = 2012;
 
-const MovieListContainer = ({ selectedGenres, visible }) => {
+const MovieListContainer = ({ selectedGenres }) => {
     const listRef = useRef(null);
-    const yearRef = useRef(INITIAL_YEAR);
     const [isLoading, setIsLoading] = useState(false);
     const [moviesSection, setMoviesSection] = useState([]);
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const [isApplyingGenre, setIsApplyingGenre] = useState();
 
     const fetchInitialMovies = async (selectedGenres) => {
-        setIsLoading(true);
+        setIsApplyingGenre(true);
         const data = await getMovieForYear(INITIAL_YEAR, selectedGenres);
+        if (!data.results.length) {
+            setMoviesSection([]);
+            setIsApplyingGenre(false);
+            return;
+        };
         const newMovies = { title: INITIAL_YEAR, data: data.results };
         setMoviesSection([newMovies]);
-        setIsLoading(false);
+        setIsApplyingGenre(false);
     }
 
     const renderSectionHeader = ({ section: { title } }) => (
@@ -27,7 +34,6 @@ const MovieListContainer = ({ selectedGenres, visible }) => {
     );
 
     const renderMovieCard = ({ section, index, item }) => {
-        // return <MovieCard movie={item}/>;
         let itemId = '';
         const numColumns = 2;
         if (index % numColumns !== 0) return null;
@@ -37,7 +43,6 @@ const MovieListContainer = ({ selectedGenres, visible }) => {
                 break;
             }
             itemId += item.id;
-            // console.log(section.data[i]);
             items.push(<MovieCard key={section.data[i].id} movie={section.data[i]} />);
         }
         return (
@@ -55,7 +60,7 @@ const MovieListContainer = ({ selectedGenres, visible }) => {
 
     const handleEndReached = async () => {
         if (isLoading) return;
-        const currentYear = yearRef.current;
+        const currentYear = moviesSection[moviesSection.length - 1].title;
         if (currentYear >= 2023) return;
         setIsLoading(true);
         const year = currentYear + 1;
@@ -65,7 +70,6 @@ const MovieListContainer = ({ selectedGenres, visible }) => {
                 setMoviesSection((m) => {
                     return m.concat(newMovies);
                 });
-                yearRef.current = year;
             })
             .finally(() => setTimeout(() => {
                 setIsLoading(false);
@@ -73,23 +77,19 @@ const MovieListContainer = ({ selectedGenres, visible }) => {
     }
 
     const handleStartReached = async () => {
-        const currentYear = yearRef.current;
+        if (isRefreshing) return;
         setIsRefreshing(true);
+        const currentYear = moviesSection[0].title;
         const year = currentYear - 1;
         getMovieForYear(year, selectedGenres)
             .then(data => {
                 const newMovies = [{ title: year, data: data.results }];
-                // const movieHeight = (newMovies[0].data.length / 2) * 220 + 20;
                 setMoviesSection((m) => {
                     return newMovies.concat(m);
                 });
                 setTimeout(() => {
-                    // const wait = new Promise(resolve => setTimeout(resolve, 500));
-                    // const currentIndex = moviesSection.findIndex(item => item.title === currentYear);
                     listRef.current.scrollToLocation({ sectionIndex: 1, itemIndex: 0, viewOffset: 0, animated: false });
-                    // listRef.current.scrollToLocation({ viewPosition: 0, animated: false });
                 }, 100);
-                yearRef.current = year;
             })
             .finally(() => setTimeout(() => {
                 setIsRefreshing(false)
@@ -98,8 +98,6 @@ const MovieListContainer = ({ selectedGenres, visible }) => {
 
     const handleScroll = (event) => {
         const scrollY = event.nativeEvent.contentOffset.y;
-
-
         if (scrollY <= 0 && !isRefreshing) {
             handleStartReached();
         }
@@ -109,21 +107,33 @@ const MovieListContainer = ({ selectedGenres, visible }) => {
         fetchInitialMovies(selectedGenres);
     }, [selectedGenres]);
 
-    // if (isLoading || isRefreshing) {
-    //     return <ActivityIndicator size="large" color="white" />;
-    // }
+    if (isApplyingGenre) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={theme.white} />
+            </View>
+        )
+    }
 
-    if(!visible) return null;
-
+    if (!moviesSection.length) {
+        return (
+            <View style={styles.notFoundContainer}>
+                <Text style={styles.notFoundText}>{'No movies found for selected genre(s)'}</Text>
+            </View>
+        )
+    }
+    
     return (
         <SectionList
             ref={listRef}
             sections={moviesSection}
             renderItem={renderMovieCard}
             renderSectionHeader={renderSectionHeader}
-            keyExtractor={(item, index) => index}
+            keyExtractor={(item, index) => item.id}
             stickySectionHeadersEnabled={false}
-            // onEndReached={handleEndReached}
+            getItemLayout={(data, index) => (
+                { length: 100, offset: 100 * index, index }
+            )}
             onEndReached={(d) => {
                 if (d.distanceFromEnd > 0) {
                     handleEndReached();
@@ -132,8 +142,8 @@ const MovieListContainer = ({ selectedGenres, visible }) => {
             initialNumToRender={20}
             onEndReachedThreshold={0.5}
             onScroll={handleScroll}
-            ListFooterComponent={isLoading ? <ActivityIndicator size="large" color="white" /> : null}
-            ListHeaderComponent={isRefreshing ? <ActivityIndicator size="large" color="white" /> : null}
+            ListFooterComponent={isLoading ? <ActivityIndicator size="large" color={theme.white} /> : null}
+            ListHeaderComponent={isRefreshing ? <ActivityIndicator size="large" color={theme.white} /> : null}
         />
     )
 }
@@ -143,14 +153,9 @@ const styles = StyleSheet.create({
         flex: 1,
         marginHorizontal: 16,
     },
-    item: {
-        backgroundColor: '#f9c2ff',
-        padding: 20,
-        marginVertical: 8,
-    },
     header: {
         fontSize: 32,
-        backgroundColor: '#fff',
+        backgroundColor: theme.white,
     },
     title: {
         fontSize: 24,
@@ -161,10 +166,23 @@ const styles = StyleSheet.create({
     },
     yearHeaderText: {
         fontWeight: 'bold',
-        color: 'white',
+        color: theme.white,
         fontSize: 24
+    },
+    loadingContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    notFoundContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    notFoundText: {
+        color: theme.white,
+        fontSize: 16
     }
 });
 
-
-export default MovieListContainer;
+export default memo(MovieListContainer);

@@ -1,32 +1,39 @@
-import React from "react";
-import { StyleSheet, View, Image, Text, Dimensions } from "react-native";
+import { StyleSheet, View, Text, Dimensions, Image } from "react-native";
+import { Entypo } from '@expo/vector-icons';
 
 const MovieCard = ({ movie }) => {
-    const { backdrop_path: uri = '', title = '' } = movie;
+    const { backdrop_path: path = '', title = '', vote_average } = movie;
     return (
         <View style={styles.card}>
-            <Image source={{ uri: `https://image.tmdb.org/t/p/original/` + movie.backdrop_path }} style={styles.image} />
+            <Image
+                source={{ uri: `https://image.tmdb.org/t/p/original/` + path }}
+                style={styles.image}
+            />
             <View style={styles.overlay}>
-                <Text numberOfLines={1} style={styles.title}>{movie.title}</Text>
-                <Text style={styles.rating}>{movie.vote_average}</Text>
-                <Text style={styles.rating}>{movie.genre_ids.join(',').toString()}</Text>
+                <Text numberOfLines={1} style={styles.title}>{title}</Text>
+                <View style={styles.ratingContainer}>
+                    <Entypo name="heart" size={14} color={theme.white} />
+                    <Text style={styles.rating}>{vote_average}</Text>
+                </View>
             </View>
         </View>
     );
 };
 
+const { theme } = require('../theme/index');
 const styles = StyleSheet.create({
     card: {
         width: Dimensions.get('window').width / 2 - 16,
-        backgroundColor: 'white',
+        backgroundColor: theme.white,
         borderRadius: 10,
         margin: 10,
         overflow: 'hidden',
-        color: 'white'
+        color: theme.white
     },
     image: {
         width: '100%',
         height: 200,
+        backgroundColor: theme.imagePlaceHolderGray
     },
     overlay: {
         flex: 1,
@@ -40,12 +47,20 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     title: {
-        color: 'white',
+        color: theme.white,
         fontWeight: 'bold',
-        fontSize: 16
+        fontSize: 20
+    },
+    ratingContainer: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center'
     },
     rating: {
-        color: 'white',
+        marginLeft: 4,
+        color: theme.white,
+        fontSize: 14,
+        fontWeight: 'bold'
     }
 });
 

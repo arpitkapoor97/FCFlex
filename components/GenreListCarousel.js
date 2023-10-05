@@ -1,7 +1,6 @@
 import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 
-const GenreListCarousel = ({ allGenres, selectedGenres, setSelectedGenres, visible }) => {
-
+const GenreListCarousel = ({ allGenres, selectedGenres, setSelectedGenres }) => {
   const handleButtonPress = (item) => {
     if (selectedGenres.includes(item.id)) {
       setSelectedGenres(selectedGenres.filter((genreId) => genreId !== item.id));
@@ -18,12 +17,10 @@ const GenreListCarousel = ({ allGenres, selectedGenres, setSelectedGenres, visib
         style={buttonStyle}
         onPress={() => handleButtonPress(item)}
       >
-        <Text style={{ color: 'white' }}>{item.name + item.id}</Text>
+        <Text style={styles.genreTitle}>{item.name}</Text>
       </TouchableOpacity>
     );
   };
-
-  if (!visible) return null;
 
   return (
     <View style={styles.container}>
@@ -38,20 +35,23 @@ const GenreListCarousel = ({ allGenres, selectedGenres, setSelectedGenres, visib
   );
 };
 
+const { theme } = require('../theme/index');
 const styles = StyleSheet.create({
   container: {
     marginLeft: 8
   },
   genreButton: {
-    backgroundColor: '#484848',
+    backgroundColor: theme.lightGray,
     padding: 10,
     margin: 5,
     borderRadius: 4
   },
+  genreTitle: {
+    color: theme.white
+  },
   selected: {
-    backgroundColor: '#FB5204',
+    backgroundColor: theme.brandColor,
   }
-
 });
 
 export default GenreListCarousel;

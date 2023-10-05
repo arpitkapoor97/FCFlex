@@ -1,6 +1,5 @@
 import { SafeAreaView, StyleSheet } from 'react-native';
 import AppNavigation from './navigation/appNavigation';
-// import HomeScreen from './screens/HomeScreen';
 
 export default function App() {
   return (
@@ -10,9 +9,10 @@ export default function App() {
   );
 }
 
+const { theme } = require('./theme/index');
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#181818',
+    backgroundColor: theme.backgroundGray,
   }
 });

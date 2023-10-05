@@ -5,7 +5,6 @@ import { useNavigation } from "@react-navigation/native";
 const FCLogo = require('../assets/fc-icon.webp');
 
 const Header = () => {
-
     const navigation = useNavigation();
 
     return (
@@ -20,13 +19,14 @@ const Header = () => {
                 <Feather
                     name="search"
                     size={40}
-                    color="white"
+                    color={theme.white}
                 />
             </TouchableOpacity>
         </SafeAreaView>
     )
 }
 
+const { theme } = require('../theme/index');
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     },
     headerText: {
         paddingLeft: 10,
-        color: '#FB5204',
+        color: theme.brandColor,
         fontSize: 51,
         alignSelf: 'center',
         fontWeight: 'bold'

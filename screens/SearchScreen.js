@@ -2,14 +2,11 @@ import { SafeAreaView, StyleSheet } from "react-native";
 import SearchBar from "../components/SearchBar";
 import { useEffect, useState } from "react";
 import MovieSearchList from "../components/MovieSearchList";
+import { theme } from "../theme";
 
 const SearchScreen = () => {
 
     const [debouncedSearchText, setDebouncedSearchText] = useState("");
-
-    useEffect(() => {
-        console.log(debouncedSearchText);
-    }, [debouncedSearchText]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -23,8 +20,8 @@ const SearchScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#181818',
-        paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
+        backgroundColor: theme.backgroundGray,
+        paddingTop: Platform.OS === "android" ? 40 : 0
     }
 });
 
