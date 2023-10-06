@@ -78,9 +78,10 @@ const MovieListContainer = ({ selectedGenres }) => {
 
     const handleStartReached = async () => {
         if (isRefreshing) return;
-        setIsRefreshing(true);
         const currentYear = moviesSection[0].title;
+        if(currentYear <= 1932) return;
         const year = currentYear - 1;
+        setIsRefreshing(true);
         getMovieForYear(year, selectedGenres)
             .then(data => {
                 const newMovies = [{ title: year, data: data.results }];
